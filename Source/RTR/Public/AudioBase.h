@@ -1,0 +1,18 @@
+#pragma once
+#include "fmod.h"
+#include "CoreMinimal.h"
+#include <vector>
+#include <string>
+#include "ModulationData.h"
+using namespace std;
+
+class AudioBase
+{
+public:
+	static void debugMessage(string message);
+	static const char* getAudioPath(FString filename);
+	static void getDriverInfo(int& ofxFmodNumDevices, FMOD_SYSTEM* system, std::vector<std::string>& deviceNames);
+	static float setDecimalValue(ModulationData& data);
+	static float setCurrentDistanceValue(float decimValue, float gainValue);
+};
+
