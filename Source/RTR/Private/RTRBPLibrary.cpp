@@ -15,6 +15,8 @@ URTRBPLibrary::URTRBPLibrary(const FObjectInitializer& ObjectInitializer)
 
 void URTRBPLibrary::playAudio()
 {
+	// read settings and starting the riser
+	jsonSystem.readJson("example.json", audioSystem);
 	audioSystem.startRiser();
 }
 

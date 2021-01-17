@@ -10,5 +10,5 @@ class JsonSystem
 {
 public:
 	static void readJson(FString filename, AudioSystem& audioSystem);
-	void initialiseAllValues();
+	static void initialiseAllValues(AudioSystem& audioSystem, TSharedPtr<FJsonObject>& jsonObject);
 };

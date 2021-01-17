@@ -14,10 +14,9 @@ public:
 
 	modulationType modType = exponential;
 
+private:
+	float release;
 	float upStep;
 	float downStep;
-private:
-
-	float release;
 };
 

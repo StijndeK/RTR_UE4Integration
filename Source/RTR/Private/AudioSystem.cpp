@@ -369,7 +369,6 @@ void AudioSystem::setGainModulation(float attack)
 
 	for (auto layer : layerLoops) {
 		layer->mainGainMod.CalculateStepSize(attack, attack * 1.5, release);
-		debugMessage(to_string(layer->mainGainMod.upStep));
 	}
 
 	// set timer length
