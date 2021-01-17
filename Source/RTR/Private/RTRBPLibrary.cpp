@@ -26,13 +26,14 @@ void URTRBPLibrary::stopAudio()
 void URTRBPLibrary::setupRTR(float playerPosition, float minimumDistance, float maximumDistance)
 {
 	GLog->Log("setup RTR");
-	//audioSystem = new AudioSystem;
 	audioSystem.initFMODSystem();
 	jsonSystem.readJson("example.json", audioSystem);
 }
 
 void URTRBPLibrary::resetRTR()
 {
+	audioSystem.stopAudioLayers(audioSystem.layerLoops);
+	audioSystem.stopAudioLayers(audioSystem.layerImpacts);
 }
 
 void URTRBPLibrary::update()

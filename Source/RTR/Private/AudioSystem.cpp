@@ -207,20 +207,16 @@ void AudioSystem::update() {
 	FMOD_System_Update(sys);
 
 	if (playing) {
-		GLog->Log("Audio is playing");
 
 		// update timer
 		timePlaying.timerTick();
 
 		// get the players position in float
 		float decimalValue = setDecimalValue(modData);
-		debugMessage("decimal value is: " + to_string(decimalValue));
 
 		// attack envelope
 		float attackedGain = attackEnv.arAttackExp(_gain, envelopeTrigger);
 		debugMessage("attacked gain is: " + to_string(attackedGain));
-		debugMessage("attack value is: " + to_string(attackEnv.attack));
-		debugMessage("_gain is: " + to_string(_gain));
 
 		// plotting
 		int onLayers = 0;
@@ -232,6 +228,7 @@ void AudioSystem::update() {
 				// gain modulation
 				float outputGain = layer->mainGainMod.CalculateModulation(decimalValue, modulationTrigger);
 				layer->setVolume(attackedGain * outputGain);
+				debugMessage("outputGain layeris: " + to_string(outputGain));
 				debugMessage("layer gain is: " + to_string(attackedGain * outputGain));
 
 				// plotting
@@ -372,6 +369,7 @@ void AudioSystem::setGainModulation(float attack)
 
 	for (auto layer : layerLoops) {
 		layer->mainGainMod.CalculateStepSize(attack, attack * 1.5, release);
+		debugMessage(to_string(layer->mainGainMod.upStep));
 	}
 
 	// set timer length
@@ -393,9 +391,8 @@ void AudioSystem::setPitchModulation(float attack)
 }
 
 void AudioSystem::setAttack(float attack) {
-	debugMessage("setAttack for attackenv: " + to_string(attack));
-	attackEnv.setARExp(attack, 500);
-	debugMessage("setAttack for attackenv result: " + to_string(attackEnv.attack));
+	debugMessage("setAttack: " + to_string(attack));
+	attackEnv.setAExp(attack);
 }
 
 void AudioSystem::setRelease(float release)

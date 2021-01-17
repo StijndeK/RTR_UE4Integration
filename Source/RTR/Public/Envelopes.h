@@ -9,13 +9,13 @@ public:
 
 	void setARLin(double attackMs, double releaseMs);
 	void setARExp(double attackMs, double releaseMs);
+	void setAExp(double attackMs);
 
 	// arlin envelope states
 	enum ArLinState { ATTACK, HOLD, RELEASE, STOP };
 
 	// initial state
 	ArLinState currentEnvState = STOP;
-	float attack = 0;
 
 private:
 	double output;
@@ -25,6 +25,7 @@ private:
 
 	double updateRate = 60.0; // oF update() rate
 
-	float release = 0;
+	float attack = 1.001;
+	float release = 1.001;
 };
 

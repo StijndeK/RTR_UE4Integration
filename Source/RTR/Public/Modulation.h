@@ -13,9 +13,11 @@ public:
 	double amplitudeStartValue = 0.001; // TODO: influence the curve by changing the start value
 
 	modulationType modType = exponential;
-private:
+
 	float upStep;
 	float downStep;
+private:
+
 	float release;
 };
 

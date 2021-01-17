@@ -3,8 +3,6 @@
 // baseLayer
 BaseLayer::BaseLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup)
 {
-	GLog->Log("baselayer constructor");
-
 	_label = label;
 	FMOD_CHANNEL* arr[] = { _channel, channel2, channel3, channel4, channel5 };
 	_channels.insert(_channels.end(), arr, arr + 5);
@@ -19,11 +17,7 @@ BaseLayer::~BaseLayer()
 void BaseLayer::stopSounds()
 {
 	for (int i = 0; i < _sounds.size(); i++) {
-		FMOD_BOOL playing;
-		FMOD_Channel_IsPlaying(_channels[i], &playing);
-		if (playing == 1) {
-			FMOD_Channel_Stop(_channels[i]);
-		}
+		FMOD_Channel_Stop(_channels[i]);
 	}
 }
 
@@ -53,7 +47,6 @@ float BaseLayer::getFrequency()
 // impactLayer
 ImpactLayer::ImpactLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup) : BaseLayer(label, system, channelGroup)
 {
-	GLog->Log("impactlayer constructor");
 }
 
 ImpactLayer::~ImpactLayer()
@@ -70,8 +63,6 @@ void ImpactLayer::startSounds()
 // loopLayer
 LoopLayer::LoopLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup) : BaseLayer(label, system, channelGroup)
 {
-	GLog->Log("looplayer constructor");
-
 	_label = label;
 	mainPitchMod.modType = linear;
 }
