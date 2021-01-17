@@ -31,6 +31,24 @@ void JsonSystem::readJson(FString filename, AudioSystem& audioSystem)
         GLog->Log("couldn't deserialize");
     }
 
-    GLog->Log("Set gain: " + FString::SanitizeFloat(JsonObject->GetNumberField("gain")));
+    // Initialise all values 
+    // TODO: create seperate class
+    //GLog->Log("Set gain: " + FString::SanitizeFloat(JsonObject->GetNumberField("gain")));
     audioSystem.setGain(JsonObject->GetNumberField("gain"));
+    audioSystem.setGainModulation(JsonObject->GetNumberField("range in ms"));
+    audioSystem.setPitchModulation(JsonObject->GetNumberField("range in ms"));
+    audioSystem.setAttack(JsonObject->GetNumberField("attack"));
+    audioSystem.setOffset(JsonObject->GetNumberField("offset"));
+    audioSystem.setModulationCurve(JsonObject->GetNumberField("curve"));
+    audioSystem.modData.currentDistanceToGetTo = JsonObject->GetNumberField("position");
+
+    // TODO: get this array from audiosystem
+    string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };
+    for (int i = 0; i < 5; i++) {
+        audioSystem.getLayerByName(loopLayerNames[i])->_onOff = (bool)JsonObject->GetNumberField(loopLayerNames[i].c_str());
+    }
+}
+
+void JsonSystem::initialiseAllValues()
+{
 }

@@ -15,7 +15,7 @@ const char* AudioBase::getAudioPath(FString filename)
 {
 	FString pathToFile = FPaths::ProjectPluginsDir();
 	pathToFile += "RTR/Content/";
-	//pathToFile += filename;
+	pathToFile += filename;
 	return TCHAR_TO_ANSI(*pathToFile);
 }
 

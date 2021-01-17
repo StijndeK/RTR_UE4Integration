@@ -6,7 +6,11 @@
 #include "fmod.h"
 #include "AudioSystem.h"
 #include "JsonSystem.h"
+#include <Runtime/Core/Private/Windows/MinimalWindowsApi.cpp>
+#include <Runtime/Core/Public/Windows/MinimalWindowsApi.h>
+#include <profileapi.h>
 #include "RTRBPLibrary.generated.h"
+
 
 /* 
 *	Function library class.
@@ -30,20 +34,17 @@ class URTRBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "myPlugin sample test testing"), Category = "RTR")
-		static float RTRSampleFunction(float Param);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "initAudioSystem", Keywords = "audio"), Category = "RTR")
-		static void initFMODSystem();
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "loadAudio", Keywords = "audio"), Category = "RTR")
-		static void loadAudio();
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "playAudio", Keywords = "audio"), Category = "RTR")
 		static void playAudio();
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "setJson", Keywords = "json, audio"), Category = "RTR")
-		static void setJson();
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "stopAudio", Keywords = "audio"), Category = "RTR")
+		static void stopAudio();
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR Setup", Keywords = "json, audio, rtr"), Category = "RTR")
 		static void setupRTR(float playerPosition, float minimumDistance, float maximumDistance);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR reset", Keywords = "json, audio, rtr"), Category = "RTR")
+		static void resetRTR();
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "update", Keywords = "update, audio, rtr"), Category = "RTR")
+		static void update();
 
-	static JsonSystem* jsonSystem;
-	static AudioSystem* audioSystem;
+	static JsonSystem jsonSystem;
+	static AudioSystem audioSystem;
 };

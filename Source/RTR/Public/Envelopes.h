@@ -15,6 +15,7 @@ public:
 
 	// initial state
 	ArLinState currentEnvState = STOP;
+	float attack = 0;
 
 private:
 	double output;
@@ -24,7 +25,6 @@ private:
 
 	double updateRate = 60.0; // oF update() rate
 
-	float attack = 0;
 	float release = 0;
 };
 

@@ -4,7 +4,8 @@
 #include "RTR.h"
 using namespace std;
 
-AudioSystem* URTRBPLibrary::audioSystem;
+AudioSystem URTRBPLibrary::audioSystem;
+JsonSystem URTRBPLibrary::jsonSystem;
 
 URTRBPLibrary::URTRBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -12,31 +13,31 @@ URTRBPLibrary::URTRBPLibrary(const FObjectInitializer& ObjectInitializer)
 
 }
 
-float URTRBPLibrary::RTRSampleFunction(float Param)
-{
-	return -1;
-}
-
-void URTRBPLibrary::loadAudio()
-{
-	audioSystem->loadAudio();
-}
-
 void URTRBPLibrary::playAudio()
 {
-	// audioSystem->playAudio();
+	audioSystem.startRiser();
 }
 
-void URTRBPLibrary::setJson()
+void URTRBPLibrary::stopAudio()
 {
-	jsonSystem->readJson("example.json", *audioSystem);
+	audioSystem.startRelease();
 }
 
 void URTRBPLibrary::setupRTR(float playerPosition, float minimumDistance, float maximumDistance)
 {
+	GLog->Log("setup RTR");
+	//audioSystem = new AudioSystem;
+	audioSystem.initFMODSystem();
+	jsonSystem.readJson("example.json", audioSystem);
 }
 
-void URTRBPLibrary::initFMODSystem()
+void URTRBPLibrary::resetRTR()
 {
-	audioSystem->initFMODSystem();
 }
+
+void URTRBPLibrary::update()
+{
+	//GLog->Log("tick");
+	audioSystem.update();
+}
+

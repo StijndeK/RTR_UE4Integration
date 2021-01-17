@@ -44,6 +44,7 @@ AudioSystem::AudioSystem()
 {
 	modData.MockData();
 
+	// TODO: for movement over time calculation
 	setTimer(5000);
 	vector<float> vect(40, 0.f);
 	lastValues = vect;
@@ -65,6 +66,8 @@ AudioSystem::~AudioSystem()
 		delete layer;
 	}
 	layerImpacts.clear();
+
+	GLog->Log("audiosystem destructor");
 }
 
 //--------------------------------------------------------------
@@ -128,70 +131,65 @@ void AudioSystem::loadAudio() {
 
 		// get folder location
 		IFileManager& _FileManager = IFileManager::Get();
-		FString pathToFile = FPaths::ProjectPluginsDir() + "MyPlugin/Content/";
+		FString pathToFile = FPaths::ProjectPluginsDir() + "RTR/Content/";
 
 		const TCHAR* RootPath = &pathToFile[0];
 		TArray<FString> AudioFiles;
 		const TCHAR* extension = _T("*.wav");
 
-		_FileManager.FindFilesRecursive(AudioFiles, RootPath, extension, true, false, false);
+		_FileManager.FindFiles(AudioFiles, RootPath, extension);
 
-		debugMessage("FILES: ");
-		for (int i = 0; i < AudioFiles.Num(); i++) {
-			debugMessage(TCHAR_TO_UTF8(*AudioFiles[i]));
-		}
-
+		debugMessage("Number of audio files: " + to_string(AudioFiles.Num()));
 
 		// load sounds into layers
 		for (int i = 0; i < AudioFiles.Num(); i++) {
 
 			// get path and name
-			string tempName = TCHAR_TO_UTF8(*AudioFiles[i]);
+			FString tempName = FPaths::GetCleanFilename(TCHAR_TO_UTF8(*AudioFiles[i]));
+			GLog->Log("tempname: " + tempName);
 
 			// create sound and channel to add to layer
 			FMOD_SOUND* tempSound;
 
 			// get path
-			FMOD_System_CreateSound(sys, getAudioPath(AudioFiles[i]), FMOD_DEFAULT, 0, &tempSound);
+			FMOD_System_CreateSound(sys, getAudioPath(*AudioFiles[i]), FMOD_DEFAULT, 0, &tempSound);
 
 			// initialise layers with their names and FMOD_SOUNDS
 			if (tempName[0] == 'I') {			// Impact
 				layerImpacts[0]->_sounds.push_back(tempSound);
-				debugMessage("layerImpacts[0]: " + tempName);
 			}
 			else if (tempName[0] == 'S') {		// Sub
 				layerImpacts[1]->_sounds.push_back(tempSound);
-				debugMessage("layerImpacts[1]: " + tempName);
 			}
 			else if (tempName[0] == 'L') {		// Loop
 				FMOD_Sound_SetMode(tempSound, FMOD_LOOP_NORMAL); // TODO: set mode at initialisation
 
 				if (tempName[2] == 'P') {		// Loop: Start Pad
 					layerLoops[0]->_sounds.push_back(tempSound);
-					debugMessage("layerLoops[0]: " + tempName);
+					GLog->Log("Pad: " + tempName);
 				}
 				else if (tempName[2] == 'E') {	// Loop: End Pad
 					layerLoops[1]->_sounds.push_back(tempSound);
-					debugMessage("layerLoops[1]: " + tempName);
+					GLog->Log("Pad: " + tempName);
 				}
 				else if (tempName[2] == 'F') {	// Loop: Fx
 					layerLoops[2]->_sounds.push_back(tempSound);
-					debugMessage("layerLoops[2]: " + tempName);
+					GLog->Log("Fx: " + tempName);
 				}
 				else if (tempName[2] == 'N') {	// Loop: Noise
 					layerLoops[3]->_sounds.push_back(tempSound);
-					debugMessage("layerLoops[3]: " + tempName);
+					GLog->Log("Noise: " + tempName);
 				}
 				else if (tempName[2] == 'S') {	// Loop: Shepard
 					layerLoops[4]->_sounds.push_back(tempSound);
-					debugMessage("layerLoops[4]: " + tempName);
+					GLog->Log("Shepard: " + tempName);
 				}
 				else {
-					debugMessage("Error: Loopname not found: " + tempName);
+					GLog->Log("Error: Loopname not found: " + tempName);
 				}
 			}
 			else {
-				debugMessage("Error: Name not found: " + tempName);
+				GLog->Log("Error: Name not found: " + tempName);
 			}
 		}
 
@@ -201,8 +199,6 @@ void AudioSystem::loadAudio() {
 
 		audioLoaded = true;
 		debugMessage("audio loaded");
-
-		FMOD_Channel_SetVolume(getLayerByName("Noise")->_channel, 0.2);
 	}
 }
 
@@ -211,14 +207,20 @@ void AudioSystem::update() {
 	FMOD_System_Update(sys);
 
 	if (playing) {
+		GLog->Log("Audio is playing");
+
 		// update timer
 		timePlaying.timerTick();
 
 		// get the players position in float
 		float decimalValue = setDecimalValue(modData);
+		debugMessage("decimal value is: " + to_string(decimalValue));
 
 		// attack envelope
 		float attackedGain = attackEnv.arAttackExp(_gain, envelopeTrigger);
+		debugMessage("attacked gain is: " + to_string(attackedGain));
+		debugMessage("attack value is: " + to_string(attackEnv.attack));
+		debugMessage("_gain is: " + to_string(_gain));
 
 		// plotting
 		int onLayers = 0;
@@ -230,6 +232,7 @@ void AudioSystem::update() {
 				// gain modulation
 				float outputGain = layer->mainGainMod.CalculateModulation(decimalValue, modulationTrigger);
 				layer->setVolume(attackedGain * outputGain);
+				debugMessage("layer gain is: " + to_string(attackedGain * outputGain));
 
 				// plotting
 				onLayers++;
@@ -280,7 +283,8 @@ void AudioSystem::update() {
 //--------------------------------------------------------------
 void AudioSystem::startRiser()
 {
-	stopRiser();
+	// TODO: figure out exception
+	// stopRiser();
 
 	debugMessage("start riser");
 
@@ -327,6 +331,7 @@ void AudioSystem::startAudioLayers(vector<LoopLayer*> layersToStart) {
 	for (auto layer : layersToStart) {
 		if (layer->_onOff) {
 			layer->startSounds();
+			debugMessage("starting: " +  layer->_label);
 		}
 	}
 }
@@ -354,7 +359,7 @@ void AudioSystem::stopAudioLayers(vector<ImpactLayer*> layersToStop) {
 
 //--------------------------------------------------------------
 void AudioSystem::setGain(float gain) {
-	debugMessage("setGain: " + to_string(gain));
+	debugMessage("setGain: " + to_string(pow(10, gain / 20)));
 	_gain = pow(10, gain / 20);
 }
 
@@ -388,8 +393,9 @@ void AudioSystem::setPitchModulation(float attack)
 }
 
 void AudioSystem::setAttack(float attack) {
-	debugMessage("setAttack: " + to_string(attack));
-	attackEnv.setARExp(attack, 0);
+	debugMessage("setAttack for attackenv: " + to_string(attack));
+	attackEnv.setARExp(attack, 500);
+	debugMessage("setAttack for attackenv result: " + to_string(attackEnv.attack));
 }
 
 void AudioSystem::setRelease(float release)
@@ -438,24 +444,24 @@ LoopLayer* AudioSystem::getLayerByName(string name) {
 //--------------------------------------------------------------
 // after how long and how much defiation in player position should the riser slow down
 void AudioSystem::checkLessModifier(float value) {
-	float deviationValue = 0.5; // if only distance moved changed half, start decreasing intensity of the riser
+	//float deviationValue = 0.5; // if only distance moved changed half, start decreasing intensity of the riser
 
-	lastValues[currentValue] = value;
+	//lastValues[currentValue] = value;
 
-	// set value in currentValue
-	currentValue = (currentValue + 1) % lastValues.size();
+	//// set value in currentValue
+	//currentValue = (currentValue + 1) % lastValues.size();
 
-	float currentDeviation = 0;
-	for (float v : lastValues) {
-		currentDeviation += v;
-	}
-	currentDeviation /= lastValues.size();
-
-	float threshold = 0.1; // TODO: set this value from input
-
-	//if (currentDeviation - value <= threshold && currentDeviation - value >= 0 - threshold) {
-	//	debugMessage("current deviation" + to_string(currentDeviation) = " | value: " + to_string(value));
+	//float currentDeviation = 0;
+	//for (float v : lastValues) {
+	//	currentDeviation += v;
 	//}
-	// check only for if its bigger
-	// then check if has not changed enough
+	//currentDeviation /= lastValues.size();
+
+	//float threshold = 0.1; // TODO: set this value from input
+
+	////if (currentDeviation - value <= threshold && currentDeviation - value >= 0 - threshold) {
+	////	debugMessage("current deviation" + to_string(currentDeviation) = " | value: " + to_string(value));
+	////}
+	//// check only for if its bigger
+	//// then check if has not changed enough
 }
