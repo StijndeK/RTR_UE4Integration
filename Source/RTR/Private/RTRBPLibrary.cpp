@@ -10,7 +10,6 @@ JsonSystem URTRBPLibrary::jsonSystem;
 URTRBPLibrary::URTRBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
-
 }
 
 void URTRBPLibrary::playAudio()
@@ -27,9 +26,8 @@ void URTRBPLibrary::stopAudio()
 
 void URTRBPLibrary::setupRTR(float playerPosition, float minimumDistance, float maximumDistance)
 {
-	GLog->Log("setup RTR");
 	audioSystem.initFMODSystem();
-	jsonSystem.readJson("example.json", audioSystem);
+	//jsonSystem.readJson("example.json", audioSystem);
 }
 
 void URTRBPLibrary::resetRTR()

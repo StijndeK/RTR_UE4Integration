@@ -413,6 +413,11 @@ void AudioSystem::setModulationCurve(float startValue)
 	}
 }
 
+void AudioSystem::setPosition(float position)
+{
+	modData.currentDistanceToGetTo = position;
+}
+
 // after how long should the riser slowdown when goal hasnt been reached yet
 // generally this point should not be reached as action over time is checked by the action timer, but due to players maybe going afk etc, you might want the timer to slow down after a long amount of time
 void AudioSystem::setTimer(float slowdownTimeMs, float slowDownAmount) {

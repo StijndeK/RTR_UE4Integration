@@ -54,6 +54,7 @@ public:
 	static void setRelease(float release);
 	static void setOffset(float offset);
 	static void setModulationCurve(float startValue);
+	void setPosition(float position);
 	static void setTimer(float slowdownTimeMs, float slowDownAmount = 1);
 
 	static void checkLessModifier(float value);

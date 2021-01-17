@@ -44,7 +44,7 @@ void JsonSystem::initialiseAllValues(AudioSystem& audioSystem, TSharedPtr<FJsonO
     audioSystem.setPitchModulation(jsonObject->GetNumberField("range in ms"));
     audioSystem.setAttack(jsonObject->GetNumberField("attack"));
     audioSystem.setOffset(jsonObject->GetNumberField("offset"));
-    audioSystem.modData.currentDistanceToGetTo = jsonObject->GetNumberField("position");
+    audioSystem.setPosition(jsonObject->GetNumberField("Position"));
 
     // TODO: get this array from audiosystem
     string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };
