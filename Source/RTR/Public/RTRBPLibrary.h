@@ -34,16 +34,16 @@ class URTRBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "playAudio", Keywords = "audio"), Category = "RTR")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR playAudio", Keywords = "audio"), Category = "RTR")
 		static void playAudio();
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "stopAudio", Keywords = "audio"), Category = "RTR")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR stopAudio", Keywords = "audio"), Category = "RTR")
 		static void stopAudio();
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR Setup", Keywords = "json, audio, rtr"), Category = "RTR")
-		static void setupRTR(float playerPosition, float minimumDistance, float maximumDistance);
+		static void setupRTR(float minimumDistance, float maximumDistance, float fastedTimeInMs);
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR reset", Keywords = "json, audio, rtr"), Category = "RTR")
 		static void resetRTR();
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "update", Keywords = "update, audio, rtr"), Category = "RTR")
-		static void update();
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR update", Keywords = "update, audio, rtr"), Category = "RTR")
+		static void update(float playerPosition);
 
 	static JsonSystem jsonSystem;
 	static AudioSystem audioSystem;

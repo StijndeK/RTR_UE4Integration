@@ -3,14 +3,10 @@
 
 void JsonSystem::readJson(FString filename, AudioSystem& audioSystem)
 {
-    bool loaded = true;
-
     FString pluginname = "RTR/Content/";
-
     const FString JsonFilePath = FPaths::ProjectPluginsDir() + pluginname + filename;
 
     FString JsonString; //Json converted to FString
-
     FFileHelper::LoadFileToString(JsonString, *JsonFilePath);
 
     //Displaying the json in a string format inside the output log
@@ -40,14 +36,11 @@ void JsonSystem::initialiseAllValues(AudioSystem& audioSystem, TSharedPtr<FJsonO
     // Initialise all values 
     audioSystem.setGain(jsonObject->GetNumberField("gain"));
     audioSystem.setModulationCurve(jsonObject->GetNumberField("curve"));
-    audioSystem.setGainModulation(jsonObject->GetNumberField("range in ms"));
-    audioSystem.setPitchModulation(jsonObject->GetNumberField("range in ms"));
     audioSystem.setAttack(jsonObject->GetNumberField("attack"));
     audioSystem.setOffset(jsonObject->GetNumberField("offset"));
-    audioSystem.setPosition(jsonObject->GetNumberField("Position"));
+    audioSystem.setPosition(1);
 
-    // TODO: get this array from audiosystem
-    string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };
+    string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };     // TODO: get this array from audiosystem
     for (int i = 0; i < 5; i++) {
         audioSystem.getLayerByName(loopLayerNames[i])->_onOff = (bool)jsonObject->GetNumberField(loopLayerNames[i].c_str());
     }

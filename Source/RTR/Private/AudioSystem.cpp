@@ -66,8 +66,6 @@ AudioSystem::~AudioSystem()
 		delete layer;
 	}
 	layerImpacts.clear();
-
-	GLog->Log("audiosystem destructor");
 }
 
 //--------------------------------------------------------------
@@ -139,8 +137,6 @@ void AudioSystem::loadAudio() {
 
 		_FileManager.FindFiles(AudioFiles, RootPath, extension);
 
-		debugMessage("Number of audio files: " + to_string(AudioFiles.Num()));
-
 		// load sounds into layers
 		for (int i = 0; i < AudioFiles.Num(); i++) {
 
@@ -194,6 +190,7 @@ void AudioSystem::loadAudio() {
 		}
 
 		// set on for frequency
+		// TODO: make UI element
 		getLayerByName("Pad: Start")->mainPitchModToggle = true;
 		getLayerByName("Pad: End")->mainPitchModToggle = true;
 
@@ -280,7 +277,7 @@ void AudioSystem::update() {
 //--------------------------------------------------------------
 void AudioSystem::startRiser()
 {
-	// TODO: figure out exception
+	// TODO: figure out how to only stop risers that are playing
 	// stopRiser();
 
 	debugMessage("start riser");
@@ -445,24 +442,5 @@ LoopLayer* AudioSystem::getLayerByName(string name) {
 //--------------------------------------------------------------
 // after how long and how much defiation in player position should the riser slow down
 void AudioSystem::checkLessModifier(float value) {
-	//float deviationValue = 0.5; // if only distance moved changed half, start decreasing intensity of the riser
 
-	//lastValues[currentValue] = value;
-
-	//// set value in currentValue
-	//currentValue = (currentValue + 1) % lastValues.size();
-
-	//float currentDeviation = 0;
-	//for (float v : lastValues) {
-	//	currentDeviation += v;
-	//}
-	//currentDeviation /= lastValues.size();
-
-	//float threshold = 0.1; // TODO: set this value from input
-
-	////if (currentDeviation - value <= threshold && currentDeviation - value >= 0 - threshold) {
-	////	debugMessage("current deviation" + to_string(currentDeviation) = " | value: " + to_string(value));
-	////}
-	//// check only for if its bigger
-	//// then check if has not changed enough
 }
