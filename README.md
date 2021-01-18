@@ -6,3 +6,4 @@ This is the integration UE4 plugin for [RTR](https://github.com/StijndeK/RTR), a
 - Stop audio when quiting halfway
 - Get event tick speed, or find other way to tick
 - Hold values in JSON class
+- build in do once
