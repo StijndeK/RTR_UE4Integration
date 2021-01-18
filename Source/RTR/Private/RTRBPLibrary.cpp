@@ -26,20 +26,20 @@ void URTRBPLibrary::stopAudio()
 
 void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance, float fastedTimeInMs)
 {
-	// currentposition is a constantly changing value
-	// minim and max distance is used for calculation
-	// get distance to gedeelte kan voor nu nog wel in bp, en later helemaal calculated
-
 	// initialise the FMOD system // TODO: this only needs to happen once
 	audioSystem.initFMODSystem();
 
 	// read initial json values and set values
 	jsonSystem.readJson("example.json", audioSystem);
 
+	// sit min and max distance
+	audioSystem.modData.positionGoal = maximumDistance;
+	audioSystem.modData.positionStart = minimumDistance;
+	audioSystem.modData.totalDistance = maximumDistance - minimumDistance;
+
 	// set the range with the fasted possible time
 	audioSystem.setGainModulation(fastedTimeInMs);
 	audioSystem.setPitchModulation(fastedTimeInMs);
-	audioSystem.debugMessage("set time in ms: " + to_string(fastedTimeInMs));
 }
 
 void URTRBPLibrary::resetRTR()
@@ -51,7 +51,7 @@ void URTRBPLibrary::resetRTR()
 void URTRBPLibrary::update(float playerPosition)
 {
 	// set the position to get to
-	//audioSystem.setPosition(playerPosition);
+	audioSystem.setPosition(audioSystem.modData.ConvertToDecimalData(playerPosition));
 
 	audioSystem.update();
 }

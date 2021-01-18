@@ -53,16 +53,10 @@ AudioSystem::AudioSystem()
 AudioSystem::~AudioSystem()
 {
 	for (auto layer : layerLoops) {
-		for (auto s : layer->_sounds) {
-			FMOD_Sound_Release(s);
-		}
 		delete layer;
 	}
 	layerLoops.clear();
 	for (auto layer : layerImpacts) {
-		for (auto s : layer->_sounds) {
-			FMOD_Sound_Release(s);
-		}
 		delete layer;
 	}
 	layerImpacts.clear();
@@ -213,7 +207,7 @@ void AudioSystem::update() {
 
 		// attack envelope
 		float attackedGain = attackEnv.arAttackExp(_gain, envelopeTrigger);
-		debugMessage("attacked gain is: " + to_string(attackedGain));
+		//debugMessage("attacked gain is: " + to_string(attackedGain));
 
 		// plotting
 		int onLayers = 0;
@@ -225,7 +219,7 @@ void AudioSystem::update() {
 				// gain modulation
 				float outputGain = layer->mainGainMod.CalculateModulation(decimalValue, modulationTrigger);
 				layer->setVolume(attackedGain * outputGain);
-				debugMessage("outputGain layeris: " + to_string(outputGain));
+				//debugMessage("outputGain layeris: " + to_string(outputGain));
 				debugMessage("layer gain is: " + to_string(attackedGain * outputGain));
 
 				// plotting

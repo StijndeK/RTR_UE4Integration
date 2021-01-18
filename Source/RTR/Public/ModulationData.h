@@ -4,7 +4,7 @@ class ModulationData
 {
 public:
 	void MockData();
-	float ConvertToDecimalData();
+	float ConvertToDecimalData(float position);
 
 	float currentDistanceToGetTo = 1;
 	float currentActionToGetTo = 1;

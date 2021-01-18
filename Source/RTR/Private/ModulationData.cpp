@@ -8,6 +8,6 @@ void ModulationData::MockData() {
 }
 
 // get the value to get to as a float between 0 and 1 (to feed into FMOD_setVolume)
-float ModulationData::ConvertToDecimalData() {
-	return 1 - ((currentDistanceToGetTo - positionStart) / totalDistance);
+float ModulationData::ConvertToDecimalData(float position) {
+	return 1 - ((position - positionStart) / totalDistance);
 }
