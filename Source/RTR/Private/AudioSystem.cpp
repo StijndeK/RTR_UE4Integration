@@ -26,26 +26,34 @@ float AudioSystem::_gain = 1;
 float AudioSystem::gainSnapshot = 1;
 
 bool AudioSystem::modulationTrigger = 0;			// true on attack when playing
+bool AudioSystem::timeModulationTrigger = 0;		// true after timeModulation threshold is passed
+bool AudioSystem::actionModulationTrigger = 1;		// true after actionModulation threshold is passed
+float AudioSystem::actionInput = 1;
 bool AudioSystem::envelopeTrigger = 0;				// true on start, then immediatly false
 bool AudioSystem::playing = false;					// true while audio is playing
-bool AudioSystem::recordTimer = false;				// true while release is playing, to get notified when to stop audio
 vector<ImpactLayer*> AudioSystem::layerImpacts;
 vector<LoopLayer*> AudioSystem::layerLoops;
 
 float AudioSystem::frequencyStandard = 44100;
 
 Envelopes AudioSystem::attackEnv;
-Timer AudioSystem::stopTimer;
-Timer AudioSystem::timePlaying;
+Timer AudioSystem::releaseTimer;
+Timer AudioSystem::timeModulationTimer;
+ActionCalculator AudioSystem::positionActionCalculator;
 ModulationData AudioSystem::modData;
+
+float AudioSystem::positionModifier = 1;
 
 //--------------------------------------------------------------
 AudioSystem::AudioSystem()
 {
 	modData.MockData();
 
-	// TODO: for movement over time calculation
-	setTimer(5000);
+	// initialise threshold modulators
+	releaseTimer.setFunctionToCall(stopRiser);
+	timeModulationTimer.setFunctionToCall(triggerTimeModulation);
+	positionActionCalculator.setFunctionsToCall(triggerActionModulation, setActionModulationPosition);
+
 	vector<float> vect(40, 0.f);
 	lastValues = vect;
 }
@@ -63,6 +71,9 @@ AudioSystem::~AudioSystem()
 }
 
 //--------------------------------------------------------------
+// audio loading and initialising
+//--------------------------------------------------------------
+
 void AudioSystem::initFMODSystem() {
 	if (systemInitialised == false) {
 		// init
@@ -194,20 +205,18 @@ void AudioSystem::loadAudio() {
 }
 
 //--------------------------------------------------------------
+// update
+//--------------------------------------------------------------
+
 void AudioSystem::update() {
 	FMOD_System_Update(sys);
 
 	if (playing) {
-
-		// update timer
-		timePlaying.timerTick();
-
 		// get the players position in float
 		float decimalValue = setDecimalValue(modData);
 
 		// attack envelope
 		float attackedGain = attackEnv.arAttackExp(_gain, envelopeTrigger);
-		//debugMessage("attacked gain is: " + to_string(attackedGain));
 
 		// plotting
 		int onLayers = 0;
@@ -216,63 +225,47 @@ void AudioSystem::update() {
 
 		for (auto layer : layerLoops) {
 			if (layer->_onOff) {
-				// gain modulation
-				float outputGain = layer->mainGainMod.CalculateModulation(decimalValue, modulationTrigger);
-				layer->setVolume(attackedGain * outputGain);
-				//debugMessage("outputGain layeris: " + to_string(outputGain));
-				debugMessage("layer gain is: " + to_string(attackedGain * outputGain));
 
-				// plotting
-				onLayers++;
-				mainOutputGainAllLayers += attackedGain * outputGain;
-				mainFrequencyAllLayers += layer->getFrequency();
+				// gain modulation
+				float outputGain = attackedGain * layer->gainModulation(decimalValue, modulationTrigger, timeModulationTrigger, actionModulationTrigger, actionInput);
+				layer->setVolume(outputGain);
 
 				// pitch modulation
 				if (layer->mainPitchModToggle) {
-					float outputPitch = layer->mainPitchMod.CalculateModulation(decimalValue, modulationTrigger);
-					layer->setFrequency(outputPitch * (layer->frequencyRange * frequencyStandard));
+					float outputPitch = (layer->frequencyRange * frequencyStandard) * layer->pitchModulation(decimalValue, modulationTrigger, timeModulationTrigger);
+					layer->setFrequency(outputPitch);
 				}
+
+				// get main amplitude and pitch (used for plotting)
+				onLayers++;
+				mainOutputGainAllLayers += attackedGain * outputGain;
+				mainFrequencyAllLayers += layer->getFrequency();
 			}
 		}
 
-		// plotting
+		// set main amplitude and pitch (used for plotting)
 		mainOutputGainAllLayers /= onLayers;
 		mainFrequencyAllLayers /= onLayers;
 
-		// check every 10 ticks to set lessGain
-		if (currentTick == 10) {
-			float currentDistanceValue = setCurrentDistanceValue(decimalValue, mainOutputGainAllLayers);
+		debugMessage(to_string(mainOutputGainAllLayers));
 
-			checkLessModifier(currentDistanceValue);
+		// update treshold checkers
+		releaseTimer.update();
+		timeModulationTimer.update();
+		positionActionCalculator.update(decimalValue);
 
-			currentTick = 0;
-		}
-		else {
-			currentTick++;
-		}
-
-		// check if playing should end
-		if (recordTimer) {
-			float timerValue = stopTimer.timerTick();
-			if (timerValue == 1) {
-				stopRiser();
-				recordTimer = false;
-			}
-		}
-	}
-
-	// reset trigger for envelopes
-	if (envelopeTrigger == 1) {
-		debugMessage("trigger envelope");
-		envelopeTrigger = 0;
+		// reset trigger for envelopes
+		if (envelopeTrigger == 1) envelopeTrigger = 0;
 	}
 }
 
 //--------------------------------------------------------------
+// playback
+//--------------------------------------------------------------
+
 void AudioSystem::startRiser()
 {
-	// TODO: figure out how to only stop risers that are playing
-	// stopRiser();
+	stopRiser();
 
 	debugMessage("start riser");
 
@@ -283,7 +276,9 @@ void AudioSystem::startRiser()
 	modulationTrigger = 1;
 	envelopeTrigger = 1;
 	playing = true;
-	recordTimer = false;
+
+	timeModulationTimer.startTimer();
+	positionActionCalculator.startActionCalculator();
 
 	FMOD_ChannelGroup_SetVolume(channelgroup, 1);
 	startAudioLayers(layerLoops);
@@ -291,13 +286,13 @@ void AudioSystem::startRiser()
 
 // begin release phase of riser, with timer that checks when to completely stop the riser
 void AudioSystem::startRelease() {
-	// check if offset is necessary
-	// check if max offset is necessary (maybe only needs half of the time, as the sound does need to get more intense)
-	// set values for offset to happen and sound to modulate to its conclusion
-
 	debugMessage("start stopping audio");
+
+	// reset triggers
 	modulationTrigger = 0;
-	recordTimer = true;
+	timeModulationTrigger = 0;
+
+	releaseTimer.startTimer();
 
 	// play impacts
 	startAudioLayers(layerImpacts);
@@ -311,96 +306,105 @@ void AudioSystem::stopRiser()
 	stopAudioLayers(layerImpacts);
 	FMOD_ChannelGroup_SetVolume(channelgroup, 0);
 
+	// reset timers in case they are currently running
+	releaseTimer.stopTimer();
+	timeModulationTimer.stopTimer();
+	positionActionCalculator.stopActionCalculator();
+
 	playing = false;
 }
 
 void AudioSystem::startAudioLayers(vector<LoopLayer*> layersToStart) {
-	debugMessage("start Audio");
+	debugMessage("start Audio loops");
 	for (auto layer : layersToStart) {
 		if (layer->_onOff) {
 			layer->startSounds();
-			debugMessage("starting: " +  layer->_label);
 		}
 	}
 }
 
 void AudioSystem::startAudioLayers(vector<ImpactLayer*> layersToStart) {
-	debugMessage("start Audio");
+	debugMessage("start Audio impacts");
 	for (auto layer : layersToStart) {
 		layer->startSounds();
 	}
 }
 
 void AudioSystem::stopAudioLayers(vector<LoopLayer*> layersToStop) {
-	debugMessage("stop Audio");
+	debugMessage("stop Audio loops");
 	for (auto layer : layersToStop) {
 		layer->stopSounds();
 	}
 }
 
 void AudioSystem::stopAudioLayers(vector<ImpactLayer*> layersToStop) {
-	debugMessage("stop Audio");
+	debugMessage("stop Audio impacts");
 	for (auto layer : layersToStop) {
 		layer->stopSounds();
 	}
 }
 
 //--------------------------------------------------------------
+// setters
+//--------------------------------------------------------------
+
 void AudioSystem::setGain(float gain) {
 	debugMessage("setGain: " + to_string(pow(10, gain / 20)));
 	_gain = pow(10, gain / 20);
 }
 
-void AudioSystem::setGainModulation(float attack)
+void AudioSystem::setPositionGainModulation(float attack)
 {
-	float release = 2000; // TODO: get release from UI
-	// TODO:  float range, float curve
-
-	debugMessage("setModulation: Amp. " + to_string(attack));
-
+	debugMessage("setPositionModulation: Amp. " + to_string(attack));
 	for (auto layer : layerLoops) {
-		layer->mainGainMod.CalculateStepSize(attack, attack * 1.5, release);
+		layer->positionGainMod.CalculateAttackStepSize(attack);
+		layer->positionGainMod.CalculateAttackDecreaseStepSize(positionModifier * attack);
 	}
-
-	// set timer length
-	stopTimer.setLength(release + 50);
 }
 
-void AudioSystem::setPitchModulation(float attack)
+void AudioSystem::setPositionPitchModulation(float attack)
 {
-	float release = 2000; // TODO: get release from UI
-	// TODO:  float range, float curve
-
-	debugMessage("setModulation: Pitch. " + to_string(attack));
-
+	debugMessage("setPositionModulation: Pitch. " + to_string(attack));
 	for (auto layer : layerLoops) {
 		if (layer->mainPitchModToggle) {
-			layer->mainPitchMod.CalculateStepSize(attack, attack * 1.5, release);
+			layer->positionPitchMod.CalculateAttackStepSize(attack);
+			layer->positionPitchMod.CalculateAttackDecreaseStepSize(positionModifier * attack);
 		}
 	}
 }
 
+void AudioSystem::setPositionModifier(float modifier)
+{
+	debugMessage("setPositionModifier: " + to_string(modifier));
+	positionModifier = modifier;
+}
+
 void AudioSystem::setAttack(float attack) {
 	debugMessage("setAttack: " + to_string(attack));
-	attackEnv.setAExp(attack);
+	attackEnv.setARExp(attack, 0);
 }
 
 void AudioSystem::setRelease(float release)
 {
-	// TODO: release set functionality
-}
+	debugMessage("setRelease: " + to_string(release));
 
-void AudioSystem::setOffset(float offset) {
-	// check if offset is necessary
-	// check if max offset is necessary (maybe only needs half of the time, as the sound does need to get more intense)
-	// set values for offset to happen and sound to modulate to its conclusion
+	for (auto layer : layerLoops) {
+		layer->positionGainMod.CalculateReleaseStepSize(release);
+	}
+
+	for (auto layer : layerLoops) {
+		if (layer->mainPitchModToggle) { layer->positionPitchMod.CalculateReleaseStepSize(release); }
+	}
+
+	// set timer length
+	releaseTimer.setLength(release + 50);
 }
 
 void AudioSystem::setModulationCurve(float startValue)
 {
 	debugMessage("setcurve: " + to_string(startValue));
 	for (auto layer : layerLoops) {
-		layer->mainGainMod.amplitudeStartValue = startValue;
+		layer->positionGainMod.curveRatio = startValue;
 	}
 }
 
@@ -409,13 +413,41 @@ void AudioSystem::setPosition(float position)
 	modData.currentDistanceToGetTo = position;
 }
 
-// after how long should the riser slowdown when goal hasnt been reached yet
-// generally this point should not be reached as action over time is checked by the action timer, but due to players maybe going afk etc, you might want the timer to slow down after a long amount of time
-void AudioSystem::setTimer(float slowdownTimeMs, float slowDownAmount) {
-	timePlaying.setLength(slowdownTimeMs);
+void AudioSystem::setTimeModulationThreshold(float threshold, float minimumLength)
+{
+	debugMessage("setTimeModulationThreshold: " + to_string(threshold * minimumLength));
+	timeModulationTimer.setLength(threshold * minimumLength);
+}
+
+void AudioSystem::setTimeModulationLength(float lengthInMs, float minimumLength)
+{
+	debugMessage("setTimeModulationLength " + to_string(lengthInMs * minimumLength));
+	for (auto layer : layerLoops) {
+		layer->timeGainMod.CalculateAttackDecreaseStepSize(lengthInMs * minimumLength);
+	}
+}
+
+void AudioSystem::setActionModulationThreshold(float threshold)
+{
+	debugMessage("setActionModulationThreshold: " + to_string(threshold));
+	positionActionCalculator.setThreshold(threshold);
+}
+
+void AudioSystem::setActionModulationLength(float lengthInMs, float minimumLength)
+{
+	float modifier = 1.5;
+
+	debugMessage("setActionModulation: Amp. " + to_string(lengthInMs * minimumLength));
+	for (auto layer : layerLoops) {
+		layer->actionGainMod.CalculateAttackStepSize(modifier * lengthInMs * minimumLength);
+		layer->actionGainMod.CalculateAttackDecreaseStepSize(lengthInMs * minimumLength);
+	}
 }
 
 //--------------------------------------------------------------
+// getters
+//--------------------------------------------------------------
+
 string AudioSystem::getAudioName(FMOD_SOUND* sound) {
 	char name[256];
 	FMOD_Sound_GetName(sound, name, 256);
@@ -430,11 +462,78 @@ LoopLayer* AudioSystem::getLayerByName(string name) {
 			return l;
 		}
 	}
-	return layerLoops[0];
+	return nullptr;
 }
 
 //--------------------------------------------------------------
+// modulation triggers
+//--------------------------------------------------------------
+
+void AudioSystem::triggerTimeModulation()
+{
+	debugMessage("start time modulation");
+	timeModulationTrigger = 1;
+}
+
+void AudioSystem::triggerActionModulation()
+{
+	debugMessage("start action modulation");
+	actionModulationTrigger = !actionModulationTrigger;
+}
+
+void AudioSystem::setActionModulationPosition(float position)
+{
+	actionInput = position;
+}
+
+//--------------------------------------------------------------
+// action modulation
+//--------------------------------------------------------------
+
 // after how long and how much defiation in player position should the riser slow down
 void AudioSystem::checkLessModifier(float value) {
+	// check every 10 ticks to set lessGain
+	if (currentTick == 10) {
+		// use setcurrentdistance value to convert the value to a 0 1 value in the engine (if this is not done before)
+		//float currentDistanceValue = setCurrentDistanceValue(decimalValue, mainOutputGainAllLayers);
 
+		checkLessModifier(value);
+
+		currentTick = 0;
+	}
+	else {
+		currentTick++;
+	}
+
+
+	float deviationValue = 0.5; // if only distance moved changed half, start decreasing intensity of the riser
+
+	lastValues[currentValue] = value;
+
+	// set value in currentValue
+	currentValue = (currentValue + 1) % lastValues.size();
+
+	float currentDeviation = 0;
+	for (float v : lastValues) {
+		currentDeviation += v;
+	}
+	currentDeviation /= lastValues.size();
+
+	float threshold = 0.1; // TODO: set this value from input
+
+	//if (currentDeviation - value <= threshold && currentDeviation - value >= 0 - threshold) {
+	//	debugMessage("current deviation" + to_string(currentDeviation) = " | value: " + to_string(value));
+	//}
+	// check only for if its bigger
+	// then check if has not changed enough
+}
+
+//--------------------------------------------------------------
+// Offset
+//--------------------------------------------------------------
+
+void AudioSystem::setOffset(float offset) {
+	// check if offset is necessary
+	// check if max offset is necessary (maybe only needs half of the time, as the sound does need to get more intense)
+	// set values for offset to happen and sound to modulate to its conclusion
 }

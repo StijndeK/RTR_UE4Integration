@@ -23,7 +23,7 @@ public:
 	float getFrequency();
 
 	vector<FMOD_SOUND*> _sounds;
-	vector<FMOD_CHANNEL*> _channels; 	// TODO: automatically assign channels to vector
+	vector<FMOD_CHANNEL*> _channels;
 	FMOD_CHANNEL* _channel;
 	FMOD_CHANNEL* channel2;
 	FMOD_CHANNEL* channel3;
@@ -51,12 +51,15 @@ public:
 	~LoopLayer();
 
 	void startSounds();
+	float gainModulation(float inputValue, float positionTrigger, float timeTrigger, float actionTrigger, float actionInputValue);
+	float pitchModulation(float inputValue, float positionTrigger, float timeTrigger);
 
-	Modulation mainGainMod;
-	Modulation mainPitchMod;
-	Modulation lessGainMod;
+	PositionModulation positionGainMod;
+	PositionModulation positionPitchMod;
+	TimeModulation timeGainMod;
+	ActionModulation actionGainMod;
 
-	bool mainPitchModToggle = false; 	// set if pitch mod should be on, main gain mod and less gain mod is always on
-	float frequencyRange = 1.5;		// TODO: create UI setting for this value
+	// set if pitch mod should be on, main gain mod and less gain mod is always on
+	bool mainPitchModToggle = false;
+	float frequencyRange = 1.5;
 };
-

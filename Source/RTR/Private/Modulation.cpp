@@ -1,6 +1,46 @@
 #include "Modulation.h"
+using namespace std;
 
-float Modulation::CalculateModulation(float currentDistanceToGetToInRange, int trigger) {
+void ModulationBase::CalculateAttackDecreaseStepSize(float attackDownSec) {
+	if (modType == linear) {
+		downStep = 0 - ((1.0 / updateRate) * (1.0 / attackDownSec));
+	}
+	else {
+		downStep = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * attackDownSec));
+
+		downStepExp = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * attackDownSec));
+		downStepAc = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * attackDownSec));
+	}
+}
+
+//--------------------------------------------------------------
+// updown Modulation Base
+//--------------------------------------------------------------
+
+void UpDownModulationBase::CalculateAttackStepSize(float attackUpSec) {
+	if (modType == linear) {
+		upStep = (1.0 / updateRate) * (1.0 / attackUpSec);
+	}
+	else {
+		upStep = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * attackUpSec));
+
+		upStepExp = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * attackUpSec));
+		upStepAc = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * attackUpSec));
+	}
+}
+
+//--------------------------------------------------------------
+// Position Modulation
+//--------------------------------------------------------------
+
+PositionModulation::PositionModulation()
+{
+	currentDistance = amplitudeStartValue;
+	currentDistanceExp = amplitudeStartValue;
+	currentDistanceAc = 1;
+}
+
+float PositionModulation::CalculateModulation(float currentDistanceToGetToInRange, int trigger) {
 	// attack stage
 	if (trigger == 1) {
 		float buffer = 0.01; // buffer because value might not get to exact goal because of step sizes
@@ -9,32 +49,129 @@ float Modulation::CalculateModulation(float currentDistanceToGetToInRange, int t
 				currentDistance += (currentDistance < currentDistanceToGetToInRange) ? upStep : downStep;
 			}
 			else {
-				if (currentDistance < amplitudeStartValue) { currentDistance = amplitudeStartValue; }; // make sure multiplyvalue != 0 TODO: do automatically
-				currentDistance *= (currentDistance < currentDistanceToGetToInRange) ? upStep : downStep;
+				if (currentDistance < amplitudeStartValue) currentDistance = amplitudeStartValue;
+				if (currentDistanceExp < amplitudeStartValue) currentDistanceExp = amplitudeStartValue;
+				if (currentDistanceAc < amplitudeStartValue) currentDistanceAc = amplitudeStartValue;
+
+				if (currentDistance < currentDistanceToGetToInRange) {
+					currentDistanceExp *= upStepExp;
+					currentDistanceAc *= upStepAc;
+				}
+				else {
+					currentDistanceExp *= downStepExp;
+					currentDistanceAc *= downStepAc;
+				}
+
+				//currentDistance *= (currentDistance < currentDistanceToGetToInRange) ? upStep : downStep;
+
+				// set curve based on ratio between Ac and Exp
+				currentDistance = ((1 - currentDistanceAc) * curveRatio) + (currentDistanceExp * (1 - curveRatio));
+
+				//cout << "test" << test << endl;
+				cout << "currentDistance" << currentDistance << endl;
 			}
 		}
 	}
 
-	// release / hold at 0 stage
-	// release value is fixed and not influenced by game data
-	// release modulation is always exponential
+	// release value is fixed, exponential, and not influenced by game data
 	else {
 		if (currentDistance > 0.01) {
 			currentDistance *= release;
+
+			// reset attack values
+			if (currentDistanceExp != amplitudeStartValue) currentDistanceExp = amplitudeStartValue;
+			if (currentDistanceAc != 1) currentDistanceAc = 1;
 		}
 	}
 
 	return currentDistance;
 }
 
-void Modulation::CalculateStepSize(float attackUpMs, float attackDownMs, float releaseMs) {
-	if (modType == linear) {
-		upStep = (1.0 / updateRate) * (1 / (attackUpMs / 1000.0));
-		downStep = 0 - ((1.0 / updateRate) * (1 / (attackDownMs / 1000.0)));
+void PositionModulation::CalculateReleaseStepSize(float releaseSec) {
+	release = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * releaseSec));
+}
+
+//--------------------------------------------------------------
+// Time Modulation
+//--------------------------------------------------------------
+
+TimeModulation::TimeModulation()
+{
+	curveRatio = 0.5;
+	currentDistance = 1;
+	currentDistanceExp = 1;
+	currentDistanceAc = amplitudeStartValue;
+}
+
+// reduce intensity when trigger = 1
+float TimeModulation::CalculateModulation(int trigger)
+{
+	if (trigger == 1) {
+		if (currentDistance > range) {
+			// calculate exp curve
+			currentDistanceExp *= downStepExp;
+
+			// calculate AC curve
+			currentDistanceAc *= downStepAc;
+
+			// set curve based on ratio between Ac and Exp
+			currentDistance = ((1 - currentDistanceAc) * curveRatio) + (currentDistanceExp * (1 - curveRatio));
+		}
 	}
+
 	else {
-		upStep = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * (attackUpMs / 1000.0)));
-		downStep = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * (attackDownMs / 1000.0)));
+		currentDistance = 1;
+		currentDistanceExp = 1;
+		currentDistanceAc = amplitudeStartValue;
 	}
-	release = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * (releaseMs / 1000.0)));
+
+	return currentDistance;
+}
+
+//--------------------------------------------------------------
+// Action Modulation
+//--------------------------------------------------------------
+
+ActionModulation::ActionModulation()
+{
+	currentDistance = 1;
+	currentDistanceExp = 1;
+	currentDistanceAc = amplitudeStartValue;
+}
+
+float ActionModulation::CalculateModulation(float currentDistanceToGetToInRange, int trigger) {
+	if (trigger == 1) {
+		float buffer = 0.01;
+		if (currentDistance < currentDistanceToGetToInRange - buffer || currentDistance > currentDistanceToGetToInRange + buffer) {
+			if (modType == linear) {
+				currentDistance += (currentDistance < currentDistanceToGetToInRange) ? upStep : downStep;
+			}
+			else {
+				if (currentDistance < amplitudeStartValue) currentDistance = amplitudeStartValue;
+
+				if (currentDistance < currentDistanceToGetToInRange) {
+					currentDistanceExp *= upStepExp;
+					currentDistanceAc *= upStepAc;
+				}
+				else {
+					currentDistanceExp *= downStepExp;
+					currentDistanceAc *= downStepAc;
+				}
+
+				//currentDistance *= (currentDistance < currentDistanceToGetToInRange) ? upStep : downStep;
+
+				// set curve based on ratio between Ac and Exp
+				currentDistance = ((1 - currentDistanceAc) * curveRatio) + (currentDistanceExp * (1 - curveRatio));
+			}
+		}
+	}
+
+
+	else {
+		currentDistance = 1;
+		currentDistanceExp = 1;
+		currentDistanceAc = amplitudeStartValue;
+	}
+
+	return currentDistance;
 }

@@ -35,12 +35,22 @@ void JsonSystem::initialiseAllValues(AudioSystem& audioSystem, TSharedPtr<FJsonO
 {
     // Initialise all values 
     audioSystem.setGain(jsonObject->GetNumberField("gain"));
-    audioSystem.setModulationCurve(jsonObject->GetNumberField("curve"));
-    audioSystem.setAttack(jsonObject->GetNumberField("attack"));
     audioSystem.setOffset(jsonObject->GetNumberField("offset"));
+    audioSystem.setPositionModifier(jsonObject->GetNumberField("attack decrease modifier"));
+    audioSystem.setPositionGainModulation(jsonObject->GetNumberField("range in s"));
+    audioSystem.setPositionPitchModulation(jsonObject->GetNumberField("range in s"));
+
+    audioSystem.setAttack(jsonObject->GetNumberField("attack"));
+    audioSystem.setRelease(jsonObject->GetNumberField("release"));
+
+    audioSystem.setTimeModulationThreshold(jsonObject->GetNumberField("tm threshold"), jsonObject->GetNumberField("range in s"));
+    audioSystem.setTimeModulationLength(jsonObject->GetNumberField("tm length"), jsonObject->GetNumberField("range in s"));
+    audioSystem.setActionModulationThreshold(jsonObject->GetNumberField("am threshold"));
+    audioSystem.setActionModulationLength(jsonObject->GetNumberField("am length"), jsonObject->GetNumberField("range in s"));
+
     audioSystem.setPosition(1);
 
-    string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };     // TODO: get this array from audiosystem
+    string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };
     for (int i = 0; i < 5; i++) {
         audioSystem.getLayerByName(loopLayerNames[i])->_onOff = (bool)jsonObject->GetNumberField(loopLayerNames[i].c_str());
     }

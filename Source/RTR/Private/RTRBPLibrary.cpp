@@ -38,8 +38,8 @@ void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance, float
 	audioSystem.modData.totalDistance = maximumDistance - minimumDistance;
 
 	// set the range with the fasted possible time
-	audioSystem.setGainModulation(fastedTimeInMs);
-	audioSystem.setPitchModulation(fastedTimeInMs);
+	audioSystem.setPositionGainModulation(fastedTimeInMs);
+	audioSystem.setPositionPitchModulation(fastedTimeInMs);
 }
 
 void URTRBPLibrary::resetRTR()

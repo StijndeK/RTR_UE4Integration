@@ -82,7 +82,7 @@ double Envelopes::arAttackExp(double input, int trigger)
             currentEnvState = STOP;
         }
         break;
-    // value is 1 after attack
+        // value is 1 after attack
     case STOP:
         amplitude = 1.0;
         if (trigger == 1) {
@@ -96,23 +96,21 @@ double Envelopes::arAttackExp(double input, int trigger)
     return output;
 }
 
-void Envelopes::setARLin(double attackMs, double releaseMs) 
+void Envelopes::setARLin(double attackMs, double releaseMs)
 {
-    attack = (1.0 / updateRate) * (1 / (attackMs / 1000.0));
-    release = (1.0 / updateRate) * (1 / (releaseMs / 1000.0));
+    attack = (1.0 / updateRate) * (1 / attackMs + 0.0001);
+    release = (1.0 / updateRate) * (1 / releaseMs + 0.0001);
 }
 
 void Envelopes::setARExp(double attackMs, double releaseMs)
 {
-    if (attackMs != 0 && releaseMs != 0) {
-        attack = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * (attackMs / 1000.0)));
-        release = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * (releaseMs / 1000.0)));
-    }
+    attack = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * attackMs + 0.0001));
+    release = pow((amplitudeStartValue / 1.0), 1.0 / (updateRate * releaseMs + 0.0001));
 }
 
 void Envelopes::setAExp(double attackMs)
 {
     if (attackMs != 0) {
-        attack = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * (attackMs / 1000.0)));
+        attack = pow((1.0 / amplitudeStartValue), 1.0 / (updateRate * attackMs + 0.0001));
     }
 }

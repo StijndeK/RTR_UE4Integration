@@ -1,6 +1,9 @@
 #include "Layer.h"
 
+//--------------------------------------------------------------
 // baseLayer
+//--------------------------------------------------------------
+
 BaseLayer::BaseLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup)
 {
 	_label = label;
@@ -44,7 +47,10 @@ float BaseLayer::getFrequency()
 	return out;
 }
 
+//--------------------------------------------------------------
 // impactLayer
+//--------------------------------------------------------------
+
 ImpactLayer::ImpactLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup) : BaseLayer(label, system, channelGroup)
 {
 }
@@ -60,11 +66,14 @@ void ImpactLayer::startSounds()
 	FMOD_System_PlaySound(_system, _sounds[randValue], _channelGroup, false, &_channels[randValue]);
 }
 
+//--------------------------------------------------------------
 // loopLayer
+//--------------------------------------------------------------
+
 LoopLayer::LoopLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup) : BaseLayer(label, system, channelGroup)
 {
 	_label = label;
-	mainPitchMod.modType = linear;
+	positionPitchMod.modType = linear;
 }
 
 LoopLayer::~LoopLayer()
@@ -77,4 +86,18 @@ void LoopLayer::startSounds()
 		//FMOD_System_PlaySound(_system, FMOD_CHANNEL_FREE, _sounds[i], false, &_channels[i]);
 		FMOD_System_PlaySound(_system, _sounds[i], _channelGroup, false, &_channels[i]);
 	}
+}
+
+float LoopLayer::gainModulation(float inputValue, float positionTrigger, float timeTrigger, float actionTrigger, float actionInputValue)
+{
+	float actOuput = actionGainMod.CalculateModulation(actionInputValue, actionTrigger);
+	float output = positionGainMod.CalculateModulation(inputValue, positionTrigger) * timeGainMod.CalculateModulation(timeTrigger);
+
+	return output;
+}
+
+float LoopLayer::pitchModulation(float inputValue, float positionTrigger, float timeTrigger)
+{
+	float output = positionPitchMod.CalculateModulation(inputValue, positionTrigger);
+	return output;
 }

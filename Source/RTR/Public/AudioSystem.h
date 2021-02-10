@@ -1,21 +1,4 @@
 //// Fill out your copyright notice in the Description page of Project Settings.
-//
-//#pragma once
-//#include "fmod.h"
-//#include "CoreMinimal.h"
-//#include "AudioBase.h"
-////#include "Layer.h"
-//
-//class AudioSystem : public AudioBase
-//{
-//public:
-//	static void initFMODSystem();
-//	void update();
-//	static void loadAudio();
-//	static void playAudio();
-//	void setGain(float gain);
-//	void setPan(float p);
-//};
 
 #pragma once
 #include "fmod.h"
@@ -23,15 +6,13 @@
 #include "AudioBase.h"
 #include "Envelopes.h"
 #include "Modulation.h"
-#include "Timer.h"
+#include "ThresholdChecker.h"
 
 class AudioSystem : public AudioBase, public ModulationTypes {
 
 public:
 	AudioSystem();
 	~AudioSystem();
-
-	//enum modulationParameter { Amp, Pitch};
 
 	static void initFMODSystem();
 	static void loadAudio();
@@ -46,18 +27,28 @@ public:
 	static void stopAudioLayers(vector<ImpactLayer*> layersToStop);
 
 	// setters
-	// TODO: maybe move all setters to layers
 	static void setGain(float gain);
-	static void setGainModulation(float attack);
-	static void setPitchModulation(float attack);
+	static void setPositionGainModulation(float attack);
+	static void setPositionPitchModulation(float attack);
+	static void setPositionModifier(float modifier);
 	static void setAttack(float attack);
-	static void setRelease(float release);
-	static void setOffset(float offset);
+	static void setRelease(float release); // move to layer
 	static void setModulationCurve(float startValue);
-	void setPosition(float position);
-	static void setTimer(float slowdownTimeMs, float slowDownAmount = 1);
+	static void setPosition(float position);
+
+	static void setTimeModulationThreshold(float threshold, float minimumLength);
+	static void setTimeModulationLength(float lengthInMs, float minimumLength);
+	static void setActionModulationThreshold(float threshold);
+	static void setActionModulationLength(float lengthInMs, float minimumLength);
+
+	static void triggerTimeModulation();
+	static void triggerActionModulation();
+	static void setActionModulationPosition(float position);
 
 	static void checkLessModifier(float value);
+	static void setOffset(float offset);
+
+	static PositionModulation timeMod;
 
 	// getters
 	static string getAudioName(FMOD_SOUND* sound);
@@ -66,10 +57,13 @@ public:
 	static bool audioLoaded;
 	static bool systemInitialised;
 
-	static bool modulationTrigger;			// true on attack when playing
-	static bool envelopeTrigger;	// true on start, then immediatly false
-	static bool playing;		// true while audio is playing
-	static bool recordTimer;	// true while release is playing, to get notified when to stop audio
+	static bool modulationTrigger;		// true on attack when playing
+	static bool timeModulationTrigger;
+	static bool actionModulationTrigger;
+	static float actionInput;
+	static bool envelopeTrigger;		// true on start, then immediatly false
+	static bool playing;				// true while audio is playing
+	static bool releasePhase;			// true while release is playing, to get notified when to stop audio
 
 	static float _gain;
 	static float gainSnapshot;
@@ -104,10 +98,11 @@ private:
 	// attack only envelope for the start of the sound
 	static Envelopes attackEnv;
 
-	// Timer on when to stop all audio after impact
-	static Timer stopTimer;
-	// Timer to check time after start
-	static Timer timePlaying;
+	static Timer releaseTimer;			// Timer on when to stop all audio after impact
+	static Timer timeModulationTimer;	// Timer to start decreasing intensity if the riser is taking long
+	static ActionCalculator positionActionCalculator;
 
 	static float frequencyStandard;
+
+	static float positionModifier;
 };
