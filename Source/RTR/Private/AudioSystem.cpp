@@ -201,6 +201,8 @@ void AudioSystem::loadAudio() {
 
 		audioLoaded = true;
 		debugMessage("audio loaded");
+
+		soundDesign();
 	}
 }
 
@@ -536,4 +538,33 @@ void AudioSystem::setOffset(float offset) {
 	// check if offset is necessary
 	// check if max offset is necessary (maybe only needs half of the time, as the sound does need to get more intense)
 	// set values for offset to happen and sound to modulate to its conclusion
+}
+
+//--------------------------------------------------------------
+// Sound design
+//--------------------------------------------------------------
+
+// set all the modulation
+void AudioSystem::soundDesign()
+{
+	debugMessage("set sound design");
+
+	// position modulation
+	getLayerByName("Pad: Start")->positionGainMod.curveRatio = 1;
+
+	// time modulation
+	getLayerByName("Fx")->timeGainMod.curveRatio = 1;
+	getLayerByName("Fx")->timeGainMod.range = 0.3;
+	getLayerByName("Shepards")->timeGainMod.curveRatio = 1;
+	getLayerByName("Shepards")->timeGainMod.range = 0.3;
+
+	// action modulation
+	getLayerByName("Pad: Start")->actionGainMod.curveRatio = 0.5;
+	getLayerByName("Pad: Start")->actionGainMod.range = 0;
+	getLayerByName("Pad: End")->actionGainMod.range = 0;
+	getLayerByName("Noise")->actionGainMod.range = 0;
+	getLayerByName("Fx")->actionGainMod.curveRatio = 1;
+	getLayerByName("Fx")->actionGainMod.range = 1;
+	getLayerByName("Shepards")->actionGainMod.curveRatio = 0.5;
+	getLayerByName("Shepards")->actionGainMod.range = 1;
 }

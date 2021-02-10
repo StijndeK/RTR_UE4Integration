@@ -50,6 +50,8 @@ public:
 
 	static PositionModulation timeMod;
 
+	static void soundDesign();
+
 	// getters
 	static string getAudioName(FMOD_SOUND* sound);
 	static LoopLayer* getLayerByName(string name);

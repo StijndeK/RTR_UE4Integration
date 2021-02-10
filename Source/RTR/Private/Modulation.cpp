@@ -97,7 +97,7 @@ void PositionModulation::CalculateReleaseStepSize(float releaseSec) {
 
 TimeModulation::TimeModulation()
 {
-	curveRatio = 0.5;
+	curveRatio = 0.3;
 	currentDistance = 1;
 	currentDistanceExp = 1;
 	currentDistanceAc = amplitudeStartValue;
@@ -142,7 +142,7 @@ ActionModulation::ActionModulation()
 float ActionModulation::CalculateModulation(float currentDistanceToGetToInRange, int trigger) {
 	if (trigger == 1) {
 		float buffer = 0.01;
-		if (currentDistance < currentDistanceToGetToInRange - buffer || currentDistance > currentDistanceToGetToInRange + buffer) {
+		if (currentDistance < currentDistanceToGetToInRange - buffer || currentDistance > currentDistanceToGetToInRange + buffer && currentDistance >= range) {
 			if (modType == linear) {
 				currentDistance += (currentDistance < currentDistanceToGetToInRange) ? upStep : downStep;
 			}
