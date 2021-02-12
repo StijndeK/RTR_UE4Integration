@@ -6,6 +6,8 @@ using namespace std;
 
 AudioSystem URTRBPLibrary::audioSystem;
 JsonSystem URTRBPLibrary::jsonSystem;
+bool URTRBPLibrary::playing = false;
+float URTRBPLibrary::plpos;
 
 URTRBPLibrary::URTRBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -24,8 +26,10 @@ void URTRBPLibrary::stopAudio()
 	audioSystem.startRelease();
 }
 
-void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance, float fastedTimeInMs)
+void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance)
 {
+	// get audiosystem and jsonsystem
+
 	// initialise the FMOD system // TODO: this only needs to happen once
 	audioSystem.initFMODSystem();
 
@@ -38,8 +42,8 @@ void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance, float
 	audioSystem.modData.totalDistance = maximumDistance - minimumDistance;
 
 	// set the range with the fasted possible time
-	audioSystem.setPositionGainModulation(fastedTimeInMs);
-	audioSystem.setPositionPitchModulation(fastedTimeInMs);
+	//audioSystem.setPositionGainModulation(fastedTimeInMs);
+	//audioSystem.setPositionPitchModulation(fastedTimeInMs);
 }
 
 void URTRBPLibrary::resetRTR()
@@ -48,10 +52,16 @@ void URTRBPLibrary::resetRTR()
 	audioSystem.stopAudioLayers(audioSystem.layerImpacts);
 }
 
-void URTRBPLibrary::update(float playerPosition)
+void URTRBPLibrary::setPlayerPosition(float playerPosition)
+{
+	plpos = playerPosition;
+}
+
+void URTRBPLibrary::update()
 {
 	// set the position to get to
-	audioSystem.setPosition(audioSystem.modData.ConvertToDecimalData(playerPosition));
+	float pos = audioSystem.modData.ConvertToDecimalData(plpos);
+	audioSystem.setPosition(pos);
 
 	audioSystem.update();
 }

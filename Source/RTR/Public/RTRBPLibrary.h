@@ -11,7 +11,6 @@
 #include <profileapi.h>
 #include "RTRBPLibrary.generated.h"
 
-
 /* 
 *	Function library class.
 *	Each function in it is expected to be static and represents blueprint node that can be called in any blueprint.
@@ -39,12 +38,16 @@ class URTRBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR stopAudio", Keywords = "audio"), Category = "RTR")
 		static void stopAudio();
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR Setup", Keywords = "json, audio, rtr"), Category = "RTR")
-		static void setupRTR(float minimumDistance, float maximumDistance, float fastedTimeInMs);
+		static void setupRTR(float minimumDistance, float maximumDistance);
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR reset", Keywords = "json, audio, rtr"), Category = "RTR")
 		static void resetRTR();
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR update", Keywords = "update, audio, rtr"), Category = "RTR")
-		static void update(float playerPosition);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "RTR set player position", Keywords = "update, audio, rtr, player, position"), Category = "RTR")
+		static void setPlayerPosition(float playerPosition);
+	UFUNCTION()
+		static void update();
 
 	static JsonSystem jsonSystem;
 	static AudioSystem audioSystem;
+	static bool playing;
+	static float plpos;
 };
