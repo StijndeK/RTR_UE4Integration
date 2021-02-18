@@ -28,8 +28,6 @@ void URTRBPLibrary::stopAudio()
 
 void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance)
 {
-	// get audiosystem and jsonsystem
-
 	// initialise the FMOD system // TODO: this only needs to happen once
 	audioSystem.initFMODSystem();
 

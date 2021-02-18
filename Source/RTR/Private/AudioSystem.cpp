@@ -320,6 +320,7 @@ void AudioSystem::startAudioLayers(vector<LoopLayer*> layersToStart) {
 	debugMessage("start Audio loops");
 	for (auto layer : layersToStart) {
 		if (layer->_onOff) {
+			layer->setVolume(0);
 			layer->startSounds();
 		}
 	}

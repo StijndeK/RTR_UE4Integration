@@ -36,6 +36,7 @@ void JsonSystem::initialiseAllValues(AudioSystem& audioSystem, TSharedPtr<FJsonO
     // Initialise all values 
     audioSystem.setGain(jsonObject->GetNumberField("gain"));
     audioSystem.setOffset(jsonObject->GetNumberField("offset"));
+    audioSystem.setModulationCurve(jsonObject->GetNumberField("curve shape"));
     audioSystem.setPositionModifier(jsonObject->GetNumberField("attack decrease modifier"));
     audioSystem.setPositionGainModulation(jsonObject->GetNumberField("range in s"));
     audioSystem.setPositionPitchModulation(jsonObject->GetNumberField("range in s"));

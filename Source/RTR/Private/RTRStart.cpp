@@ -22,6 +22,14 @@ ARTRStart::ARTRStart()
 	collisionBox->OnComponentBeginOverlap.AddDynamic(this, &ARTRStart::OnOverlapBegin);
 }
 
+ARTRStart::~ARTRStart()
+{
+	if (URTRBPLibrary::playing == true) {
+		GLog->Log("overlap stop");
+		URTRBPLibrary::playing = false;
+		URTRBPLibrary::audioSystem.stopRiser();
+	}
+}
 // Called when the game starts or when spawned
 void ARTRStart::BeginPlay()
 {
@@ -51,10 +59,5 @@ void ARTRStart::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 
 void ARTRStart::update()
 {
-	FString name = "update";
-	int32 mana = URTRBPLibrary::playing;
-	FString string = FString::Printf(TEXT("Name = %s Mana = %d"), *name, mana);
-	GLog->Log(string);
-
 	URTRBPLibrary::update();
 }

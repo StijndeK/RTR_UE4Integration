@@ -14,6 +14,9 @@ class RTR_API ARTRStart : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ARTRStart();
+	//virtual void BeginDestroy();
+	~ARTRStart();
+
 
 protected:
 	// Called when the game starts or when spawned

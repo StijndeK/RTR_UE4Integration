@@ -44,7 +44,6 @@ void ARTRStop::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 			GLog->Log("overlap stop");
 			URTRBPLibrary::playing = false;
 			URTRBPLibrary::stopAudio();
-			// URTRBPLibrary::audioSystem.startRelease();
 		}
 	}
 	//Destroy();
