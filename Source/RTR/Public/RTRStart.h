@@ -17,6 +17,7 @@ public:
 	//virtual void BeginDestroy();
 	~ARTRStart();
 
+	float CalculateDistance(FVector* location1, FVector* location2);
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,6 +32,13 @@ public:
 
 	UPROPERTY(visibleAnywhere)
 		class UStaticMeshComponent* mesh;
+
+	UPROPERTY(EditAnywhere)
+		AActor* Destination;
+
+	// TODO: give option to provide player pawn manually
+	//UPROPERTY(EditAnywhere)
+	//	APawn* Player;
 
 	float boxHeight;
 	float boxWidth;

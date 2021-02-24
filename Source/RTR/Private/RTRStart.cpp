@@ -34,6 +34,31 @@ ARTRStart::~ARTRStart()
 void ARTRStart::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// check if stop reference is set
+	if (Destination == nullptr) {
+		GLog->Log("RTR ERROR: please provide a reference to the RTRStop actor to the RTRStart actor");
+	}
+	else {
+		// calculate distance
+		FVector loc1 = GetActorLocation();
+		FVector loc2 = Destination->GetActorLocation();
+		float startStopDistance = CalculateDistance(&loc1, &loc2);
+		URTRBPLibrary::setupRTR(400, startStopDistance);
+		UE_LOG(LogTemp, Warning, TEXT("startStopDistance, %f"), startStopDistance);
+	}
+}
+
+// calculate distance
+float ARTRStart::CalculateDistance(FVector* location1, FVector* location2)
+{
+	// TODO: acount for offset
+
+	float distancex = (location2[0].X - location1[0].X) * (location2[0].X - location1[0].X);
+	float distancey = (location2[0].Y - location1[0].Y) * (location2[0].Y - location1[0].Y);
+	float distance = sqrt(distancex + distancey);
+
+	return distance;
 }
 
 // Called every frame
@@ -59,5 +84,13 @@ void ARTRStart::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 
 void ARTRStart::update()
 {
+	// update player position
+	FVector loc1 = UGameplayStatics::GetPlayerPawn(this, 0)->GetActorLocation();
+	FVector loc2 = Destination->GetActorLocation();
+	float playerDistance = CalculateDistance(&loc1, &loc2);
+	UE_LOG(LogTemp, Warning, TEXT("player position: , %f"), playerDistance);
+	URTRBPLibrary::setPlayerPosition(playerDistance);
+
+	// update audio
 	URTRBPLibrary::update();
 }
