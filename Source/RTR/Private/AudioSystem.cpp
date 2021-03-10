@@ -209,7 +209,7 @@ void AudioSystem::loadAudio() {
 //--------------------------------------------------------------
 // update
 //--------------------------------------------------------------
-
+int first = 0;
 void AudioSystem::update() {
 	FMOD_System_Update(sys);
 
@@ -284,6 +284,7 @@ void AudioSystem::startRiser()
 	positionActionCalculator.startActionCalculator();
 
 	FMOD_ChannelGroup_SetVolume(channelgroup, 1);
+
 	startAudioLayers(layerLoops);
 }
 

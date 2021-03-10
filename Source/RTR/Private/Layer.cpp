@@ -74,6 +74,7 @@ LoopLayer::LoopLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* chann
 {
 	_label = label;
 	positionPitchMod.modType = linear;
+	setVolume(0);
 }
 
 LoopLayer::~LoopLayer()

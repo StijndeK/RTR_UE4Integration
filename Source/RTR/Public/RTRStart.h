@@ -37,8 +37,8 @@ public:
 		AActor* Destination;
 
 	// TODO: give option to provide player pawn manually
-	//UPROPERTY(EditAnywhere)
-	//	APawn* Player;
+	UPROPERTY(EditAnywhere)
+		APawn* Player;
 
 	float boxHeight;
 	float boxWidth;

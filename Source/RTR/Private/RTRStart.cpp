@@ -47,6 +47,10 @@ void ARTRStart::BeginPlay()
 		URTRBPLibrary::setupRTR(400, startStopDistance);
 		UE_LOG(LogTemp, Warning, TEXT("startStopDistance, %f"), startStopDistance);
 	}
+
+	// if no player is provided, use a default
+	if (Player == nullptr) 
+		Player = UGameplayStatics::GetPlayerPawn(this, 0);
 }
 
 // calculate distance
@@ -69,7 +73,7 @@ void ARTRStart::Tick(float DeltaTime)
 void ARTRStart::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// check if overlap is with the player
-	if (OtherActor == UGameplayStatics::GetPlayerPawn(this, 0)) {
+	if (OtherActor == Player) {
 		if (URTRBPLibrary::playing != true) {
 			GLog->Log("overlap start");
 			URTRBPLibrary::playing = true;
@@ -84,7 +88,7 @@ void ARTRStart::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 void ARTRStart::update()
 {
 	// update player position
-	FVector loc1 = UGameplayStatics::GetPlayerPawn(this, 0)->GetActorLocation();
+	FVector loc1 = Player->GetActorLocation();
 	FVector loc2 = Destination->GetActorLocation();
 	float playerDistance = CalculateDistance(&loc1, &loc2);
 	UE_LOG(LogTemp, Warning, TEXT("player position: , %f"), playerDistance);
