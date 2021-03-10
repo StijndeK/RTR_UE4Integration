@@ -8,7 +8,7 @@
 ARTRStop::ARTRStop()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	collisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Stop Component"));
 	FVector boxEx;
@@ -26,13 +26,6 @@ ARTRStop::ARTRStop()
 void ARTRStop::BeginPlay()
 {
 	Super::BeginPlay();
-
-}
-
-// Called every frame
-void ARTRStop::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
 }
 

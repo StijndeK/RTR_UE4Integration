@@ -53,7 +53,6 @@ void ARTRStart::BeginPlay()
 float ARTRStart::CalculateDistance(FVector* location1, FVector* location2)
 {
 	// TODO: acount for offset
-
 	float distancex = (location2[0].X - location1[0].X) * (location2[0].X - location1[0].X);
 	float distancey = (location2[0].Y - location1[0].Y) * (location2[0].Y - location1[0].Y);
 	float distance = sqrt(distancex + distancey);

@@ -249,7 +249,8 @@ void AudioSystem::update() {
 		mainOutputGainAllLayers /= onLayers;
 		mainFrequencyAllLayers /= onLayers;
 
-		debugMessage(to_string(mainOutputGainAllLayers));
+		debugMessage("position to get to: " + to_string(modData.currentDistanceToGetTo));
+		debugMessage("output" + to_string(mainOutputGainAllLayers));
 
 		// update treshold checkers
 		releaseTimer.update();
