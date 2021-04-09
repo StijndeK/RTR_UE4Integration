@@ -53,6 +53,6 @@ void JsonSystem::initialiseAllValues(AudioSystem& audioSystem, TSharedPtr<FJsonO
 
     string loopLayerNames[] = { "Pad: Start", "Pad: End", "Fx", "Noise", "Shepards" };
     for (int i = 0; i < 5; i++) {
-        audioSystem.getLayerByName(loopLayerNames[i])->_onOff = (bool)jsonObject->GetNumberField(loopLayerNames[i].c_str());
+        audioSystem.getLayerByName(loopLayerNames[i])->onOff = (bool)jsonObject->GetNumberField(loopLayerNames[i].c_str());
     }
 }

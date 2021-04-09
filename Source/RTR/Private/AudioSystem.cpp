@@ -157,32 +157,39 @@ void AudioSystem::loadAudio() {
 
 			// initialise layers with their names and FMOD_SOUNDS
 			if (tempName[0] == 'I') {			// Impact
-				layerImpacts[0]->_sounds.push_back(tempSound);
+				layerImpacts[0]->channels.push_back(nullptr);
+				layerImpacts[0]->sounds.push_back(tempSound);
 			}
 			else if (tempName[0] == 'S') {		// Sub
-				layerImpacts[1]->_sounds.push_back(tempSound);
+				layerImpacts[1]->channels.push_back(nullptr);
+				layerImpacts[1]->sounds.push_back(tempSound);
 			}
 			else if (tempName[0] == 'L') {		// Loop
-				FMOD_Sound_SetMode(tempSound, FMOD_LOOP_NORMAL); // TODO: set mode at initialisation
+				FMOD_Sound_SetMode(tempSound, FMOD_LOOP_NORMAL); 
 
 				if (tempName[2] == 'P') {		// Loop: Start Pad
-					layerLoops[0]->_sounds.push_back(tempSound);
+					layerLoops[0]->channels.push_back(nullptr);
+					layerLoops[0]->sounds.push_back(tempSound);
 					GLog->Log("Pad: " + tempName);
 				}
 				else if (tempName[2] == 'E') {	// Loop: End Pad
-					layerLoops[1]->_sounds.push_back(tempSound);
+					layerLoops[1]->channels.push_back(nullptr);
+					layerLoops[1]->sounds.push_back(tempSound);
 					GLog->Log("Pad: " + tempName);
 				}
 				else if (tempName[2] == 'F') {	// Loop: Fx
-					layerLoops[2]->_sounds.push_back(tempSound);
+					layerLoops[2]->channels.push_back(nullptr);
+					layerLoops[2]->sounds.push_back(tempSound);
 					GLog->Log("Fx: " + tempName);
 				}
 				else if (tempName[2] == 'N') {	// Loop: Noise
-					layerLoops[3]->_sounds.push_back(tempSound);
+					layerLoops[3]->channels.push_back(nullptr);
+					layerLoops[3]->sounds.push_back(tempSound);
 					GLog->Log("Noise: " + tempName);
 				}
 				else if (tempName[2] == 'S') {	// Loop: Shepard
-					layerLoops[4]->_sounds.push_back(tempSound);
+					layerLoops[4]->channels.push_back(nullptr);
+					layerLoops[4]->sounds.push_back(tempSound);
 					GLog->Log("Shepard: " + tempName);
 				}
 				else {
@@ -226,7 +233,7 @@ void AudioSystem::update() {
 		mainFrequencyAllLayers = 0;
 
 		for (auto layer : layerLoops) {
-			if (layer->_onOff) {
+			if (layer->onOff) {
 
 				// gain modulation
 				float outputGain = attackedGain * layer->gainModulation(decimalValue, modulationTrigger, timeModulationTrigger, actionModulationTrigger, actionInput);
@@ -321,7 +328,7 @@ void AudioSystem::stopRiser()
 void AudioSystem::startAudioLayers(vector<LoopLayer*> layersToStart) {
 	debugMessage("start Audio loops");
 	for (auto layer : layersToStart) {
-		if (layer->_onOff) {
+		if (layer->onOff) {
 			layer->setVolume(0);
 			layer->startSounds();
 		}
@@ -462,8 +469,8 @@ string AudioSystem::getAudioName(FMOD_SOUND* sound) {
 
 LoopLayer* AudioSystem::getLayerByName(string name) {
 	for (auto l : layerLoops) {
-		if (l->_label == name) {
-			debugMessage("getLayerByName: " + l->_label);
+		if (l->label == name) {
+			debugMessage("getLayerByName: " + l->label);
 			return l;
 		}
 	}
