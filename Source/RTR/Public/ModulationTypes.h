@@ -1,6 +1,7 @@
 #pragma once
-class ModulationTypes
+
+enum modulationCurveType
 {
-public:
-	enum modulationType { linear, exponential };
+	linear,
+	exponential
 };

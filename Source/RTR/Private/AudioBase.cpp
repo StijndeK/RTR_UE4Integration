@@ -1,10 +1,10 @@
 #include "AudioBase.h"
 
-int samplerate = 44800;
-FMOD_SPEAKERMODE speakerMode = FMOD_SPEAKERMODE_STEREO;
-int channels = 2;
+int AudioBase::samplerate = 44800;
+FMOD_SPEAKERMODE AudioBase::speakerMode = FMOD_SPEAKERMODE_STEREO;
+int AudioBase::channels = 2;
 
-void AudioBase::debugMessage(string message)
+void AudioBase::debugMessage(std::string message)
 {
 	FString mes(message.c_str());
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::White, mes);
@@ -29,18 +29,16 @@ void AudioBase::getDriverInfo(int& ofxFmodNumDevices, FMOD_SYSTEM* system, std::
 	}
 }
 
+// TODO: are these 2 methods necessary?
 
-// this value to get to in the audio == the player position scaled to a value between 0 and 1
-// in mock no need to convert, use the currentPositionSlider value (which is already between 0 and 1)
-// in engine you would set the value like this: data.ConvertToDecimalData();
+// The player position scaled to a value between 0 and 1.
 float AudioBase::setDecimalValue(ModulationData& data)
 {
 	float decimalValue = data.currentDistanceToGetTo;
 	return decimalValue;
 }
 
-// map value to a value between 0 and 1 in UE4
-// if in tool, use gain (and decimalValue in engine), because slider can be moved instantly opposite to the player that has to take time to move
+// Map value to a value between 0 and 1.
 float AudioBase::setCurrentDistanceValue(float decimValue, float gainValue)
 {
 	return gainValue;

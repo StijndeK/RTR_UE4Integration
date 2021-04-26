@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "AudioSystem.h"
-#include "JsonSystem.h"
+#include "JsonIn.h"
 
 class RTRData
 {
@@ -9,7 +9,7 @@ public:
 	RTRData();
 	~RTRData();
 
-	JsonSystem jsonSystem;
+	JsonIn jsonSystem;
 	AudioSystem audioSystem;
 private:
 

@@ -1,9 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
 
-#pragma once
-#include "CoreMinimal.h"
-
 class ThresholdChecker
 {
 public:
@@ -14,16 +11,13 @@ public:
 class ActionCalculator
 {
 public:
-	// base treshold checker functions
 	void setThreshold(float timeInMs);
-
-	// own functions
 	void update(float currentValue);
 	void startActionCalculator();
 	void stopActionCalculator();
-	bool calculateAction = false;
-
 	void setFunctionsToCall(void(&triggerFunctionToCall)(), void(&setFunctionToCall)(float pos));
+
+	bool calculateAction = false;
 
 private:
 	std::vector<float> values;
@@ -48,8 +42,8 @@ public:
 	void stopTimer();
 
 	bool looping = false;
+
 private:
 	float currentTick = 0;
 	float addValue;
 };
-

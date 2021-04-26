@@ -4,10 +4,10 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
+// Sets default values.
 ARTRStart::ARTRStart()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 
 	collisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Start Component"));
@@ -24,23 +24,27 @@ ARTRStart::ARTRStart()
 
 ARTRStart::~ARTRStart()
 {
-	if (URTRBPLibrary::playing == true) {
+	if (URTRBPLibrary::playing == true) 
+	{
 		GLog->Log("overlap stop");
 		URTRBPLibrary::playing = false;
 		URTRBPLibrary::audioSystem.stopRiser();
 	}
 }
-// Called when the game starts or when spawned
+
+// Called when the game starts or when spawned.
 void ARTRStart::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// check if stop reference is set
-	if (Destination == nullptr) {
+	// Check if stop reference is set.
+	if (Destination == nullptr) 
+	{
 		GLog->Log("RTR ERROR: please provide a reference to the RTRStop actor to the RTRStart actor");
 	}
-	else {
-		// calculate distance
+	else 
+	{
+		// Calculate distance.
 		FVector loc1 = GetActorLocation();
 		FVector loc2 = Destination->GetActorLocation();
 		float startStopDistance = CalculateDistance(&loc1, &loc2);
@@ -48,15 +52,13 @@ void ARTRStart::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("startStopDistance, %f"), startStopDistance);
 	}
 
-	// if no player is provided, use a default
-	if (Player == nullptr) 
-		Player = UGameplayStatics::GetPlayerPawn(this, 0);
+	// If no player is provided, use a default.
+	if (Player == nullptr) Player = UGameplayStatics::GetPlayerPawn(this, 0);
 }
 
-// calculate distance
+// Calculate distance.
 float ARTRStart::CalculateDistance(FVector* location1, FVector* location2)
 {
-	// TODO: acount for offset
 	float distancex = (location2[0].X - location1[0].X) * (location2[0].X - location1[0].X);
 	float distancey = (location2[0].Y - location1[0].Y) * (location2[0].Y - location1[0].Y);
 	float distance = sqrt(distancex + distancey);
@@ -64,7 +66,7 @@ float ARTRStart::CalculateDistance(FVector* location1, FVector* location2)
 	return distance;
 }
 
-// Called every frame
+// Called every frame.
 void ARTRStart::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -72,9 +74,12 @@ void ARTRStart::Tick(float DeltaTime)
 
 void ARTRStart::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// check if overlap is with the player
-	if (OtherActor == Player) {
-		if (URTRBPLibrary::playing != true) {
+	// Check if overlap is with the player.
+	if (OtherActor == Player) 
+	{
+		// Start the riser, if not playing already.
+		if (URTRBPLibrary::playing != true) 
+		{
 			GLog->Log("overlap start");
 			URTRBPLibrary::playing = true;
 			URTRBPLibrary::playAudio();
@@ -87,13 +92,13 @@ void ARTRStart::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 
 void ARTRStart::update()
 {
-	// update player position
+	// Update player position.
 	FVector loc1 = Player->GetActorLocation();
 	FVector loc2 = Destination->GetActorLocation();
 	float playerDistance = CalculateDistance(&loc1, &loc2);
 	UE_LOG(LogTemp, Warning, TEXT("player position: , %f"), playerDistance);
 	URTRBPLibrary::setPlayerPosition(playerDistance);
 
-	// update audio
+	// Update audio.
 	URTRBPLibrary::update();
 }

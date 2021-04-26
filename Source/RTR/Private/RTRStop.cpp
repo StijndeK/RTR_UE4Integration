@@ -4,10 +4,9 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 ARTRStop::ARTRStop()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = false;
 
 	collisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Stop Component"));
@@ -22,7 +21,7 @@ ARTRStop::ARTRStop()
 	collisionBox->OnComponentBeginOverlap.AddDynamic(this, &ARTRStop::OnOverlapBegin);
 }
 
-// Called when the game starts or when spawned
+// Called when the game starts or when spawned.
 void ARTRStop::BeginPlay()
 {
 	Super::BeginPlay();
@@ -31,13 +30,14 @@ void ARTRStop::BeginPlay()
 
 void ARTRStop::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// check if overlap is with the player
+	// Check if overlap is with the player.
 	if (OtherActor == UGameplayStatics::GetPlayerPawn(this, 0)) {
-		if (URTRBPLibrary::playing == true) {
+		// Stop the riser
+		if (URTRBPLibrary::playing == true) 
+		{
 			GLog->Log("overlap stop");
 			URTRBPLibrary::playing = false;
 			URTRBPLibrary::stopAudio();
 		}
 	}
-	//Destroy();
 }

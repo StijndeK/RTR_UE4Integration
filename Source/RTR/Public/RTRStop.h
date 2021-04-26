@@ -13,11 +13,9 @@ class RTR_API ARTRStop : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ARTRStop();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
@@ -27,9 +25,9 @@ public:
 	UPROPERTY(visibleAnywhere)
 		class UStaticMeshComponent* mesh;
 
-	float boxHeight;
-	float boxWidth;
-
 	UFUNCTION()
 		void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	float boxHeight;
+	float boxWidth;
 };

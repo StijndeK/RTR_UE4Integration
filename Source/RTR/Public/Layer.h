@@ -8,11 +8,10 @@
 #include "ModulationTypes.h"
 using namespace std;
 
-class BaseLayer : public ModulationTypes
+class BaseLayer
 {
 public:
 	BaseLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup);
-	~BaseLayer();
 
 	FMOD_SYSTEM* system;
 	FMOD_CHANNELGROUP* channelGroup;
@@ -33,7 +32,6 @@ class ImpactLayer : public BaseLayer
 {
 public:
 	ImpactLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup);
-	~ImpactLayer();
 
 	void startSounds();
 };
@@ -42,18 +40,17 @@ class LoopLayer : public BaseLayer
 {
 public:
 	LoopLayer(string label, FMOD_SYSTEM* system, FMOD_CHANNELGROUP* channelGroup);
-	~LoopLayer();
 
 	void startSounds();
 	float gainModulation(float inputValue, float positionTrigger, float timeTrigger, float actionTrigger, float actionInputValue);
 	float pitchModulation(float inputValue, float positionTrigger, float timeTrigger);
 
-	PositionModulation positionGainMod;
-	PositionModulation positionPitchMod;
-	TimeModulation timeGainMod;
-	ActionModulation actionGainMod;
+	positionModulation positionGainMod;
+	positionModulation positionPitchMod;
+	timeModulation timeGainMod;
+	actionModulation actionGainMod;
 
-	// set if pitch mod should be on, main gain mod and less gain mod is always on
+	// Set if pitch mod should be on. Main gain mod and less gain mod are always on.
 	bool mainPitchModToggle = false;
 	float frequencyRange = 1.5;
 };

@@ -2,10 +2,9 @@
 
 #include "RTRBPLibrary.h"
 #include "RTR.h"
-using namespace std;
 
 AudioSystem URTRBPLibrary::audioSystem;
-JsonSystem URTRBPLibrary::jsonSystem;
+JsonIn URTRBPLibrary::jsonSystem;
 bool URTRBPLibrary::playing = false;
 float URTRBPLibrary::plpos;
 
@@ -14,7 +13,7 @@ URTRBPLibrary::URTRBPLibrary(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-// read current json settings and start the riser
+// Read current json settings and start the riser.
 void URTRBPLibrary::playAudio()
 {
 	jsonSystem.readJson("example.json", audioSystem);
@@ -28,20 +27,17 @@ void URTRBPLibrary::stopAudio()
 
 void URTRBPLibrary::setupRTR(float minimumDistance, float maximumDistance)
 {
-	// initialise the FMOD system // TODO: this only needs to happen once
+	// Initialise the FMOD system 
+	// TODO: this only needs to happen once
 	audioSystem.initFMODSystem();
 
-	// read initial json values and set values
+	// Read initial json values and set values.
 	jsonSystem.readJson("example.json", audioSystem);
 
-	// sit min and max distance
+	// Set modulation data.
 	audioSystem.modData.positionGoal = maximumDistance;
 	audioSystem.modData.positionStart = minimumDistance;
 	audioSystem.modData.totalDistance = maximumDistance - minimumDistance;
-
-	// set the range with the fasted possible time
-	//audioSystem.setPositionGainModulation(fastedTimeInMs);
-	//audioSystem.setPositionPitchModulation(fastedTimeInMs);
 }
 
 void URTRBPLibrary::resetRTR()
@@ -57,7 +53,7 @@ void URTRBPLibrary::setPlayerPosition(float playerPosition)
 
 void URTRBPLibrary::update()
 {
-	// set the position to get to
+	// Set the position to get to.
 	float pos = audioSystem.modData.ConvertToDecimalData(plpos);
 	audioSystem.setPosition(pos);
 

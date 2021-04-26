@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "ModulationTypes.h"
 
-class ModulationBase : public ModulationTypes
+class ModulationBase
 {
 public:
 	float updateRate = 60.f;
@@ -16,41 +16,41 @@ public:
 	float downStep;
 	float range = 0.1;
 
-	modulationType modType = exponential;
+	modulationCurveType curveType = exponential;
 
-	void CalculateAttackDecreaseStepSize(float attackDownSec);
+	void calculateAttackDecreaseStepSize(float attackDownSec);
 };
 
 class UpDownModulationBase : public ModulationBase
 {
 public:
-	void CalculateAttackStepSize(float attackUpSec);
+	void calculateAttackStepSize(float attackUpSec);
 
 	float upStepAc, upStepExp;
 	float upStep;
 };
 
-class PositionModulation : public UpDownModulationBase
+class positionModulation : public UpDownModulationBase
 {
 public:
-	PositionModulation();
-	float CalculateModulation(float currentDistanceToGetToInRange, int trigger);
-	void CalculateReleaseStepSize(float releaseSec);
+	positionModulation();
+	void calculateReleaseStepSize(float releaseSec);
+	float calculateModulation(float currentDistanceToGetToInRange, int trigger);
 
 private:
 	float release;
 };
 
-class TimeModulation : public ModulationBase
+class timeModulation : public ModulationBase
 {
 public:
-	TimeModulation();
-	float CalculateModulation(int trigger);
+	timeModulation();
+	float calculateModulation(int trigger);
 };
 
-class ActionModulation : public UpDownModulationBase
+class actionModulation : public UpDownModulationBase
 {
 public:
-	ActionModulation();
-	float CalculateModulation(float currentDistanceToGetToInRange, int trigger);
+	actionModulation();
+	float calculateModulation(float currentDistanceToGetToInRange, int trigger);
 };

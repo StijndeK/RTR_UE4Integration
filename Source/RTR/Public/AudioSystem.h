@@ -8,8 +8,8 @@
 #include "Modulation.h"
 #include "ThresholdChecker.h"
 
-class AudioSystem : public AudioBase, public ModulationTypes {
-
+class AudioSystem : public AudioBase 
+{
 public:
 	AudioSystem();
 	~AudioSystem();
@@ -48,7 +48,7 @@ public:
 	static void checkLessModifier(float value);
 	static void setOffset(float offset);
 
-	static PositionModulation timeMod;
+	static positionModulation timeMod;
 
 	static void soundDesign();
 
@@ -71,7 +71,7 @@ public:
 	static float gainSnapshot;
 
 	// holds values to check deviation for lessGain
-	static vector<float> lastValues; // TODO: fill immediatly
+	static vector<float> lastValues;
 	static int currentValue;
 	static int currentTick;
 
