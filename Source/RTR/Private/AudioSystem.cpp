@@ -222,7 +222,7 @@ void AudioSystem::update()
 	if (playing) 
 	{
 		// Get the player's position in float.
-		float decimalValue = setDecimalValue(modData);
+		float decimalValue = modData.currentDistanceToGetTo;
 
 		// Attack envelope
 		float attackedGain = attackEnv.arAttackExp(_gain, envelopeTrigger);

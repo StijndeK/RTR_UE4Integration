@@ -28,18 +28,3 @@ void AudioBase::getDriverInfo(int& ofxFmodNumDevices, FMOD_SYSTEM* system, std::
 		deviceNames.push_back(name);
 	}
 }
-
-// TODO: are these 2 methods necessary?
-
-// The player position scaled to a value between 0 and 1.
-float AudioBase::setDecimalValue(ModulationData& data)
-{
-	float decimalValue = data.currentDistanceToGetTo;
-	return decimalValue;
-}
-
-// Map value to a value between 0 and 1.
-float AudioBase::setCurrentDistanceValue(float decimValue, float gainValue)
-{
-	return gainValue;
-}
